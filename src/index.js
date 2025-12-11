@@ -17,6 +17,7 @@ program
   .option('--public', 'Create a public repository')
   .option('--private', 'Create a private repository (default)')
   .option('--here', 'Use current directory instead of creating a new one')
+  .option('--force', 'Force initialization even if git repo or README.md exists (with --here)')
   .option('--org <name>', 'GitHub organization (e.g., bluestemlabs)')
   .action(initCommand);
 

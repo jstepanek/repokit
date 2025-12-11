@@ -19,6 +19,7 @@ import {
   repoExists,
   getGhUsername,
 } from '../utils/github.js';
+import { validateProjectName } from '../utils/validation.js';
 
 /**
  * Create a README.md file with the project name as header
@@ -37,6 +38,16 @@ function createReadme(dir, projectName) {
  */
 export async function initCommand(projectName, options) {
   const config = loadConfig();
+
+  // Validate project name early to prevent command injection
+  let validatedName;
+  try {
+    validatedName = validateProjectName(projectName);
+  } catch (error) {
+    console.error(chalk.red(`\nError: ${error.message}`));
+    process.exit(1);
+  }
+  projectName = validatedName;
 
   // Determine visibility (CLI flag > config default)
   let isPublic = false;
@@ -97,6 +108,30 @@ export async function initCommand(projectName, options) {
   }
 
   preflightSpinner.succeed('Preflight checks passed');
+
+  // Safety checks for --here flag
+  if (useCurrentDir) {
+    // Check if git repo already exists
+    if (isGitRepo(targetDir) && !options.force) {
+      console.error(
+        chalk.red('\nError: Current directory is already a git repository.')
+      );
+      console.error(
+        chalk.yellow('Use --force to proceed anyway (will rename branch to main).')
+      );
+      process.exit(1);
+    }
+
+    // Check if README.md already exists
+    const readmePath = join(targetDir, 'README.md');
+    if (existsSync(readmePath) && !options.force) {
+      console.error(chalk.red('\nError: README.md already exists.'));
+      console.error(
+        chalk.yellow('Use --force to proceed anyway (will overwrite README.md).')
+      );
+      process.exit(1);
+    }
+  }
 
   // Step 1: Create directory (if not using current)
   if (!useCurrentDir) {

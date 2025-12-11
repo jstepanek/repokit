@@ -45,26 +45,6 @@ export function getGhUsername() {
 }
 
 /**
- * Create a GitHub repository
- * @param {Object} options - Repository options
- * @param {string} options.name - Repository name
- * @param {boolean} options.isPublic - Whether the repo should be public
- * @param {string|null} options.org - Organization name (null for personal account)
- * @returns {string} Repository URL
- */
-export function createRepo({ name, isPublic = false, org = null }) {
-  const visibility = isPublic ? '--public' : '--private';
-  const ownerFlag = org ? `--org ${org}` : '';
-
-  // Create the repo and capture the URL
-  const result = exec(
-    `gh repo create ${name} ${visibility} ${ownerFlag} --source=. --remote=origin --push`
-  );
-
-  return result;
-}
-
-/**
  * Create a GitHub repository without pushing (for manual remote setup)
  * @param {Object} options - Repository options
  * @param {string} options.name - Repository name
@@ -106,15 +86,3 @@ export function repoExists(name, org = null) {
   }
 }
 
-/**
- * Get available organizations for the authenticated user
- * @returns {string[]} List of organization names
- */
-export function getOrganizations() {
-  try {
-    const result = exec('gh api user/orgs --jq ".[].login"');
-    return result.split('\n').filter(Boolean);
-  } catch {
-    return [];
-  }
-}

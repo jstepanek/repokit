@@ -53,3 +53,12 @@ export function validateProjectName(name) {
 
   return trimmedName;
 }
+
+/**
+ * Alias for validateProjectName - validates any GitHub name (repo, org, username)
+ * GitHub org names follow the same naming rules as repository names
+ * @param {string} name - Name to validate
+ * @returns {string} The validated name
+ * @throws {Error} If the name is invalid
+ */
+export const validateGitHubName = validateProjectName;

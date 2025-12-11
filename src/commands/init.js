@@ -19,7 +19,7 @@ import {
   repoExists,
   getGhUsername,
 } from '../utils/github.js';
-import { validateProjectName } from '../utils/validation.js';
+import { validateProjectName, validateGitHubName } from '../utils/validation.js';
 
 /**
  * Create a README.md file with the project name as header
@@ -61,6 +61,16 @@ export async function initCommand(projectName, options) {
 
   // Determine organization (CLI flag > config default)
   const org = options.org ?? config.defaultOrg;
+
+  // Validate organization name to prevent command injection
+  if (org) {
+    try {
+      validateGitHubName(org);
+    } catch (error) {
+      console.error(chalk.red(`\nError: Invalid organization name - ${error.message}`));
+      process.exit(1);
+    }
+  }
 
   // Determine target directory
   const useCurrentDir = options.here;

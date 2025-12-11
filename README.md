@@ -67,7 +67,7 @@ Initialize a new project with a GitHub repository.
 |------|-------------|
 | `--public` | Create a public repository |
 | `--private` | Create a private repository (default) |
-| `-h, --here` | Use current directory instead of creating new |
+| `--here` | Use current directory instead of creating new |
 | `--org <name>` | GitHub organization to create repo under |
 
 ### `repokit config`

@@ -16,7 +16,7 @@ program
   .description('Initialize a new project with GitHub repository')
   .option('--public', 'Create a public repository')
   .option('--private', 'Create a private repository (default)')
-  .option('-h, --here', 'Use current directory instead of creating a new one')
+  .option('--here', 'Use current directory instead of creating a new one')
   .option('--org <name>', 'GitHub organization (e.g., bluestemlabs)')
   .action(initCommand);
 

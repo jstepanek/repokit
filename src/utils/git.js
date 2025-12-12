@@ -59,9 +59,14 @@ export function gitAddRemote(dir, url) {
  * Push to remote with upstream tracking
  * @param {string} dir - Directory path
  * @param {string} branch - Branch name (default: main)
+ * @param {string} sshIdentityFile - Optional SSH identity file path
  */
-export function gitPush(dir, branch = 'main') {
-  exec(`git push -u origin ${branch}`, { cwd: dir });
+export function gitPush(dir, branch = 'main', sshIdentityFile = null) {
+  const env = { ...process.env };
+  if (sshIdentityFile) {
+    env.GIT_SSH_COMMAND = `ssh -i ${sshIdentityFile}`;
+  }
+  exec(`git push -u origin ${branch}`, { cwd: dir, env });
 }
 
 /**

@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
+import { select } from '@inquirer/prompts';
 import { loadConfig } from '../utils/config.js';
 import {
   isGitRepo,
@@ -20,6 +21,7 @@ import {
   getGhUsername,
 } from '../utils/github.js';
 import { validateProjectName, validateGitHubName } from '../utils/validation.js';
+import { getGitHubSSHKeys } from '../utils/ssh.js';
 
 /**
  * Create a README.md file with the project name as header
@@ -220,10 +222,28 @@ export async function initCommand(projectName, options) {
     process.exit(1);
   }
 
-  // Step 7: Push to main
+  // Step 7: Select SSH key and push to main
+  const sshKeys = getGitHubSSHKeys();
+  let selectedIdentityFile = null;
+
+  if (sshKeys.length > 1) {
+    console.log('');
+    const selectedKey = await select({
+      message: 'Select SSH key to use for push:',
+      choices: sshKeys.map(key => ({
+        name: `${key.name} (${key.identityFile})`,
+        value: key.identityFile,
+      })),
+    });
+    selectedIdentityFile = selectedKey;
+    console.log('');
+  } else if (sshKeys.length === 1) {
+    selectedIdentityFile = sshKeys[0].identityFile;
+  }
+
   const pushSpinner = ora('Pushing to GitHub...').start();
   try {
-    gitPush(targetDir, 'main');
+    gitPush(targetDir, 'main', selectedIdentityFile);
     pushSpinner.succeed('Pushed to GitHub');
   } catch (error) {
     pushSpinner.fail(`Failed to push: ${error.message}`);

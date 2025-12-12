@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
-import { select } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 import { loadConfig } from '../utils/config.js';
 import {
   isGitRepo,
@@ -228,13 +228,17 @@ export async function initCommand(projectName, options) {
 
   if (sshKeys.length > 1) {
     console.log('');
-    const selectedKey = await select({
-      message: 'Select SSH key to use for push:',
-      choices: sshKeys.map(key => ({
-        name: `${key.name} (${key.identityFile})`,
-        value: key.identityFile,
-      })),
-    });
+    const { selectedKey } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'selectedKey',
+        message: 'Select SSH key to use for push:',
+        choices: sshKeys.map(key => ({
+          name: `${key.name} (${key.identityFile})`,
+          value: key.identityFile,
+        })),
+      },
+    ]);
     selectedIdentityFile = selectedKey;
     console.log('');
   } else if (sshKeys.length === 1) {
